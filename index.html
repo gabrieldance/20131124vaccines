@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>vaccines efficacy</title>
+</head>
+<body>
+
+<div id="chart_div">
+	
+</div>
+
+
+<script type="text/javascript" src="js/d3.min.js"></script>
+
+<style>
+	.axis {
+	  font: 10px sans-serif;
+	}
+
+	.axis path,
+	.axis line {
+	  fill: none;
+	  stroke: #000;
+	  shape-rendering: crispEdges;
+	}
+
+	text{
+		font-family: sans-serif;
+		font-size: 10px;
+		font-weight: 100;
+	}
+
+	line {
+		width: .5px;
+		stroke: #999;
+		stroke-width:.5px;
+	}
+
+</style>
+
+
+<script>
+	"use strict"
+	console.log("loaded",d3)
+
+	var w=800,h=600;
+	var margin={left:100,right:100,top:50,bottom:50};
+	
+	var svg=d3.select('#chart_div').append('svg')
+		.attr("width",w)
+		.attr("height",h)
+		.attr("class",'chart')
+	
+	var morbidityScale=d3.scale.linear()
+		.range([h-margin.right,0+margin.left])
+	var casesScale=d3.scale.linear()
+		.range([0,h])
+
+	var morbidityAxis=d3.svg.axis()
+	      .scale(morbidityScale)
+	      .orient("left");
+
+	var vaccines;
+
+	var line = d3.svg.line()
+  		.y(function(d) { return morbidityScale(d); })
+  		.x(function(d) { return xscale(d[0]); });
+
+	d3.tsv("data/vaccines.tsv", type,function(error, data) {
+		console.log(data)
+		vaccines=data;
+
+		morbidityScale.domain([0,d3.max(data,function(d){ return d.MORBIDITY })])
+		casesScale.domain([0,d3.max(data,function(d){ return d.CASES_2010 })])
+		console.log(morbidityScale.domain())
+		console.log(casesScale.domain())
+
+		data.forEach(function(v,i){
+			console.log(v,i)
+			console.log(svg.append)
+
+			svg.append("g")
+		      .attr("class", "y axis")
+		      .attr('transform','translate('+margin.left+',0)')
+		      .call(morbidityAxis);
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',margin.left)
+				.attr('y1',function(d){ return morbidityScale(d.MORBIDITY) })
+				.attr('x2',w-margin.right)
+				.attr('y2',function(d){ return morbidityScale(d.CASES_2010) })
+				.each(function(d){ console.log(d) })
+		})
+
+	});
+
+	function type(d) {
+		d.MORBIDITY = +d.MORBIDITY;
+		d.CASES_2010 = +d.CASES_2010;
+		d.PERCENT_DEC= d.PERCENT_DEC;
+		d.PERCENT_DEC=(1-d.CASES_2010/d.MORBIDITY)*100;
+		return d;
+	}
+
+</script>
+
+
+</body>
+</html>
