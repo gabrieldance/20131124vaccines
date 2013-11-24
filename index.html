@@ -14,13 +14,11 @@
 
 <style>
 	body{
+		width: 1200px;
+		margin: 40px auto;
 		font-family: "Helvetica Neue",sans-serif;
 	}
 
-	#chart_div{
-		width: 1200px;
-		margin: 0px auto;
-	}
 
 	svg text{
 		font-family:"Helvetica Neue",sans-serif;
@@ -46,8 +44,15 @@
 		fill:#717171;
 	}
 
+	.tick_line{
+		shape-rendering: crispEdges;
+		fill:none;
+		stroke-width:.5px;
+	}
+
 	.slope_line {
 		opacity: 1;
+		fill:none;
 		stroke-width:.5px;
 	}
 
@@ -67,7 +72,7 @@
 	console.log("loaded",d3)
 
 	var w=1200,h=600;
-	var margin={left:150,right:150,top:50,bottom:50,middle:300};
+	var margin={left:150,right:150,top:50,bottom:50,middle:400};
 	
 	var svg=d3.select('#chart_div').append('svg')
 		.attr("width",w)
@@ -136,11 +141,11 @@
 			svg.append('svg:line')
 				.datum(v)
 				.attr('x1',margin.left)
-				.attr('y1',function(d){ return morbidityLogScale(d)-.5 })
+				.attr('y1',function(d){ return morbidityLogScale(d) })
 				.attr('x2',w/2-margin.middle/2)
-				.attr('y2',function(d){ return morbidityLogScale(d)-.5 })
-				.attr('class','slope_line')
-				.style('stroke-opacity',.3)
+				.attr('y2',function(d){ return morbidityLogScale(d) })
+				.attr('class','tick_line')
+				.style('stroke-opacity',.4)
 				.style('stroke','lightgrey')
 				.style('stroke-width','1px')
 		})
@@ -152,11 +157,30 @@
 				.attr('y1',function(d){ return morbidityLinearScale(d) })
 				.attr('x2',w-margin.right)
 				.attr('y2',function(d){ return morbidityLinearScale(d) })
-				.attr('class','slope_line')
-				.style('stroke-opacity',.3)
+				.attr('class','tick_line')
+				.style('stroke-opacity',.4)
 				.style('stroke','lightgrey')
 				.style('stroke-width','1px')
 		})
+
+		svg.append('svg:line')
+			.datum([d3.max(data,function(d){ return d.MORBIDITY })])
+			.attr('x1',margin.left)
+			.attr('y1',function(d){ return morbidityLogScale(d) })
+			.attr('x2',w-margin.right)
+			.attr('y2',function(d){ return morbidityLogScale(d) })
+			.attr('class','tick_line')
+			.style('stroke-opacity',.4)
+			.style('stroke','lightgrey')
+			.style('stroke-width','1px')
+
+		svg.append('svg:text')
+			.attr('x',function(){ return w/2-90 })
+			.attr('y',function(){ return morbidityLogScale(d3.max(data,function(d){ return d.MORBIDITY }))+10 })
+			.text(String(d3.max(data,function(d){ return d.MORBIDITY })))
+			.style('font-weight',100)
+			.style('font-size',"36px")
+			.style('background-color','#FFFFFF')
 
 		data.forEach(function(v,i){
 			console.log(v,i)
