@@ -35,8 +35,7 @@
 	}
 
 	.slope_line {
-		opacity: .5;
-		stroke: red;
+		opacity: 1;
 		stroke-width:.5px;
 	}
 
@@ -56,23 +55,33 @@
 	console.log("loaded",d3)
 
 	var w=800,h=600;
-	var margin={left:250,right:250,top:50,bottom:50};
+	var margin={left:100,right:50,top:50,bottom:50};
 	
 	var svg=d3.select('#chart_div').append('svg')
 		.attr("width",w)
 		.attr("height",h)
 		.attr("class",'chart')
 	
-	var morbidityScale=d3.scale.log()
+	var morbidityLogScale=d3.scale.log()
+		.range([h-margin.bottom,margin.top])
+
+	var morbidityLinearScale=d3.scale.linear()
 		.range([h-margin.bottom,margin.top])
 
 	var percScale=d3.scale.linear()
 		.range([h-margin.bottom,margin.top])
 
-	var morbidityAxis=d3.svg.axis()
-		.scale(morbidityScale)
+	var morbidityLogAxis=d3.svg.axis()
+		.scale(morbidityLogScale)
 		.orient("left")
 		.ticks(1,d3.format(",.0f"))
+
+	var morbidityLinearAxis=d3.svg.axis()
+		.scale(morbidityLinearScale)
+		.orient("left")
+		// .ticks(1,d3.format(",.0f"))
+
+
 
 	var percAxis=d3.svg.axis()
 		.scale(percScale)
@@ -80,26 +89,31 @@
 
 	var vaccines;
 
-	var line = d3.svg.line()
-  		.y(function(d) { return morbidityScale(d); })
-  		.x(function(d) { return xscale(d[0]); });
+	var slopeColors=["#F4B2E2","#F3FF47","#1A3C0E","#A0272C","#7EA078","#412B67","#F69431","#3B76E9","#C32998","#1F7877","#35A777","#5F4804","#E48F97","#1E2F48","#8B4308"]
 
 	d3.tsv("data/vaccines.tsv", type,function(error, data) {
 		console.log(data)
 		vaccines=data;
 
-		morbidityScale.domain([.1,d3.max(data,function(d){ return d.MORBIDITY })])
+		morbidityLogScale.domain([.1,d3.max(data,function(d){ return d.MORBIDITY })]).clamp(true)
+		morbidityLinearScale.domain([0,d3.max(data,function(d){ return d.MORBIDITY })])
 		percScale.domain([d3.min(data,function(d){ return d.PERCENT_DEC }),d3.max(data,function(d){ return d.PERCENT_DEC })])
-		console.log(morbidityScale.domain())
+		
+		console.log(morbidityLinearScale.domain())
 		console.log(percScale.domain())
 
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr('transform','translate('+(margin.left-10)+',0)')
-			.call(morbidityAxis);
+			.attr('transform','translate('+(margin.left)+',0)')
+			.call(morbidityLogAxis);
 
-		console.log(morbidityScale.ticks())
+		svg.append("g")
+			.attr("class", "axis")
+			.attr('transform','translate('+(w/2+margin.left)+',0)')
+			.call(morbidityLinearAxis);
+
+		console.log(morbidityLogScale.ticks())
 		// svg.append("g")
 		// 	.attr("class", "axis")
 		// 	.attr('transform','translate('+(w-margin.right+10)+',0)')
@@ -112,10 +126,20 @@
 			svg.append('svg:line')
 				.datum(v)
 				.attr('x1',margin.left)
-				.attr('y1',function(d){ return morbidityScale(d.MORBIDITY) })
-				.attr('x2',w-margin.right)
-				.attr('y2',function(d){ return morbidityScale(d.CASES_2010+.1) })
+				.attr('y1',function(d){ return morbidityLogScale(d.MORBIDITY) })
+				.attr('x2',w/2-margin.right)
+				.attr('y2',function(d){ return morbidityLogScale(d.CASES_2010) })
 				.attr('class','slope_line')
+				.style('stroke',slopeColors[i])
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',w/2+margin.left)
+				.attr('y1',function(d){ return morbidityLinearScale(d.MORBIDITY) })
+				.attr('x2',w-margin.right)
+				.attr('y2',function(d){ return morbidityLinearScale(d.CASES_2010) })
+				.attr('class','slope_line')	
+				.style('stroke',slopeColors[i])
 
 			// svg.append('svg:line')
 			// 	.datum(v)
