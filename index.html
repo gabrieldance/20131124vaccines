@@ -13,6 +13,19 @@
 <script type="text/javascript" src="js/d3.min.js"></script>
 
 <style>
+	body{
+		font-family: "Helvetica Neue",sans-serif;
+	}
+
+	#chart_div{
+		width: 1200px;
+		margin: 0px auto;
+	}
+
+	svg text{
+		font-family:"Helvetica Neue",sans-serif;
+	}
+
 	.axis {
 	  font: 10px sans-serif;
 	}
@@ -29,8 +42,7 @@
 	}
 
 	.axis text{
-		font-family: 'Arial';
-		font-weight: 100;
+		font-weight: 400;
 		fill:#717171;
 	}
 
@@ -54,8 +66,8 @@
 	"use strict"
 	console.log("loaded",d3)
 
-	var w=800,h=600;
-	var margin={left:100,right:50,top:50,bottom:50};
+	var w=1200,h=600;
+	var margin={left:150,right:150,top:50,bottom:50,middle:300};
 	
 	var svg=d3.select('#chart_div').append('svg')
 		.attr("width",w)
@@ -81,7 +93,8 @@
 		.orient("left")
 		// .ticks(1,d3.format(",.0f"))
 
-
+	var logTicks=[0,1,10,100,1000,10000,100000,1000000];
+	var linearTicks=[500000,1000000,1500000,2000000,2500000,3000000,3500000,4000000];
 
 	var percAxis=d3.svg.axis()
 		.scale(percScale)
@@ -110,7 +123,7 @@
 
 		svg.append("g")
 			.attr("class", "axis")
-			.attr('transform','translate('+(w/2+margin.left)+',0)')
+			.attr('transform','translate('+(w/2+margin.middle/2)+',0)')
 			.call(morbidityLinearAxis);
 
 		console.log(morbidityLogScale.ticks())
@@ -119,6 +132,31 @@
 		// 	.attr('transform','translate('+(w-margin.right+10)+',0)')
 		// 	.call(percAxis);
 
+		logTicks.forEach(function(v,i){
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',margin.left)
+				.attr('y1',function(d){ return morbidityLogScale(d)-.5 })
+				.attr('x2',w/2-margin.middle/2)
+				.attr('y2',function(d){ return morbidityLogScale(d)-.5 })
+				.attr('class','slope_line')
+				.style('stroke-opacity',.3)
+				.style('stroke','lightgrey')
+				.style('stroke-width','1px')
+		})
+
+		linearTicks.forEach(function(v,i){
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',w/2+margin.middle/2)
+				.attr('y1',function(d){ return morbidityLinearScale(d) })
+				.attr('x2',w-margin.right)
+				.attr('y2',function(d){ return morbidityLinearScale(d) })
+				.attr('class','slope_line')
+				.style('stroke-opacity',.3)
+				.style('stroke','lightgrey')
+				.style('stroke-width','1px')
+		})
 
 		data.forEach(function(v,i){
 			console.log(v,i)
@@ -127,14 +165,37 @@
 				.datum(v)
 				.attr('x1',margin.left)
 				.attr('y1',function(d){ return morbidityLogScale(d.MORBIDITY) })
-				.attr('x2',w/2-margin.right)
+				.attr('x2',w/2-margin.middle/2)
+				.attr('y2',function(d){ return morbidityLogScale(d.CASES_2010) })
+				.attr('class','slope_line')
+				.style('stroke-opacity',.1)
+				.style('stroke',slopeColors[i])
+				.style('stroke-width','10px')
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',margin.left)
+				.attr('y1',function(d){ return morbidityLogScale(d.MORBIDITY) })
+				.attr('x2',w/2-margin.middle/2)
 				.attr('y2',function(d){ return morbidityLogScale(d.CASES_2010) })
 				.attr('class','slope_line')
 				.style('stroke',slopeColors[i])
 
+
 			svg.append('svg:line')
 				.datum(v)
-				.attr('x1',w/2+margin.left)
+				.attr('x1',w/2+margin.middle/2)
+				.attr('y1',function(d){ return morbidityLinearScale(d.MORBIDITY) })
+				.attr('x2',w-margin.right)
+				.attr('y2',function(d){ return morbidityLinearScale(d.CASES_2010) })
+				.attr('class','slope_line')
+				.style('stroke-opacity',.1)
+				.style('stroke',slopeColors[i])
+				.style('stroke-width','10px')	
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',w/2+margin.middle/2)
 				.attr('y1',function(d){ return morbidityLinearScale(d.MORBIDITY) })
 				.attr('x2',w-margin.right)
 				.attr('y2',function(d){ return morbidityLinearScale(d.CASES_2010) })
