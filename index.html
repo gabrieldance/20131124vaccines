@@ -17,8 +17,25 @@
 		width: 1200px;
 		margin: 40px auto;
 		font-family: "Helvetica Neue",sans-serif;
+		border-left:1px solid #ccc;
+		border-right:1px solid #ccc;
 	}
 
+	#chart_div{
+		position: relative;
+	}
+
+	#reported_div{
+		position: absolute;
+		left:465px;
+		top:26px;
+		font-weight: 100;
+		font-size:36px;
+		background-color: #fff;
+		padding: 2px 2px;
+		text-align: center;
+		line-height: 100%;
+	}
 
 	svg text{
 		font-family:"Helvetica Neue",sans-serif;
@@ -88,10 +105,12 @@
 	var percScale=d3.scale.linear()
 		.range([h-margin.bottom,margin.top])
 
+	var addCommasFormat=d3.format(",.0f");
+
 	var morbidityLogAxis=d3.svg.axis()
 		.scale(morbidityLogScale)
 		.orient("left")
-		.ticks(1,d3.format(",.0f"))
+		.ticks(1,addCommasFormat)
 
 	var morbidityLinearAxis=d3.svg.axis()
 		.scale(morbidityLinearScale)
@@ -173,14 +192,11 @@
 			.style('stroke-opacity',.4)
 			.style('stroke','lightgrey')
 			.style('stroke-width','1px')
+			.style('stroke-dasharray',"5,5")
 
-		svg.append('svg:text')
-			.attr('x',function(){ return w/2-90 })
-			.attr('y',function(){ return morbidityLogScale(d3.max(data,function(d){ return d.MORBIDITY }))+10 })
-			.text(String(d3.max(data,function(d){ return d.MORBIDITY })))
-			.style('font-weight',100)
-			.style('font-size',"36px")
-			.style('background-color','#FFFFFF')
+		d3.select('#chart_div').append('div')
+			.html(String(addCommasFormat(d3.max(data,function(d){ return d.MORBIDITY })))+"<br>reported cases")
+			.attr('id','reported_div')
 
 		data.forEach(function(v,i){
 			console.log(v,i)
