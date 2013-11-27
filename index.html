@@ -15,10 +15,8 @@
 <style>
 	body{
 		width: 1200px;
-		margin: 40px auto;
+		margin: 60px auto;
 		font-family: "Helvetica Neue",sans-serif;
-		border-left:1px solid #ccc;
-		border-right:1px solid #ccc;
 	}
 
 	#chart_div{
@@ -39,6 +37,7 @@
 
 	svg text{
 		font-family:"Helvetica Neue",sans-serif;
+		font-weight: 100;
 	}
 
 	.axis {
@@ -89,7 +88,7 @@
 	console.log("loaded",d3)
 
 	var w=1200,h=600;
-	var margin={left:150,right:150,top:50,bottom:50,middle:400};
+	var margin={left:150,right:150,top:10,bottom:10,middle:400};
 	
 	var svg=d3.select('#chart_div').append('svg')
 		.attr("width",w)
@@ -182,21 +181,21 @@
 				.style('stroke-width','1px')
 		})
 
-		svg.append('svg:line')
-			.datum([d3.max(data,function(d){ return d.MORBIDITY })])
-			.attr('x1',margin.left)
-			.attr('y1',function(d){ return morbidityLogScale(d) })
-			.attr('x2',w-margin.right)
-			.attr('y2',function(d){ return morbidityLogScale(d) })
-			.attr('class','tick_line')
-			.style('stroke-opacity',.4)
-			.style('stroke','lightgrey')
-			.style('stroke-width','1px')
-			.style('stroke-dasharray',"5,5")
+		// svg.append('svg:line')
+		// 	.datum([d3.max(data,function(d){ return d.MORBIDITY })])
+		// 	.attr('x1',margin.left)
+		// 	.attr('y1',function(d){ return morbidityLogScale(d) })
+		// 	.attr('x2',w-margin.right)
+		// 	.attr('y2',function(d){ return morbidityLogScale(d) })
+		// 	.attr('class','tick_line')
+		// 	.style('stroke-opacity',.4)
+		// 	.style('stroke','lightgrey')
+		// 	.style('stroke-width','1px')
+		// 	.style('stroke-dasharray',"5,5")
 
-		d3.select('#chart_div').append('div')
-			.html(String(addCommasFormat(d3.max(data,function(d){ return d.MORBIDITY })))+"<br>reported cases")
-			.attr('id','reported_div')
+		// d3.select('#chart_div').append('div')
+		// 	.html(String(addCommasFormat(d3.max(data,function(d){ return d.MORBIDITY })))+"<br>reported cases")
+		// 	.attr('id','reported_div')
 
 		data.forEach(function(v,i){
 			console.log(v,i)
@@ -241,6 +240,36 @@
 				.attr('y2',function(d){ return morbidityLinearScale(d.CASES_2010) })
 				.attr('class','slope_line')	
 				.style('stroke',slopeColors[i])
+
+
+			// svg.append('svg:text')
+			// 	.datum(v)
+			// 	.attr('x',w/2)
+			// 	// .attr('y',function(d){ return (morbidityLogScale(d.CASES_2010)-morbidityLogScale(d.MORBIDITY))/2+morbidityLogScale(d.MORBIDITY) })
+			// 	.attr('y',function(d){ return Math.round((h-margin.top-margin.bottom)/vaccines.length * (vaccines.length-i)) +margin.top-.5})
+			// 	.attr('text-anchor','middle')
+			// 	.text(function(d){ return d.DISEASE })
+			// 	.style('stroke',slopeColors[i])
+
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',w/2-margin.middle/2+10-.5+(i)*2)
+				.attr('y1',function(d){ return morbidityLogScale(d.MORBIDITY) })
+				.attr('x2',w/2-margin.middle/2+10-.5+(i)*2)
+				.attr('y2',function(d){ return morbidityLogScale(d.CASES_2010) })
+				.attr('class','slope_line')	
+				.style('stroke',slopeColors[i])
+
+			svg.append('svg:line')
+				.datum(v)
+				.attr('x1',w/2+margin.middle/2-50-.5-(i)*2)
+				.attr('y1',function(d){ return morbidityLinearScale(d.MORBIDITY) })
+				.attr('x2',w/2+margin.middle/2-50-.5-(i)*2)
+				.attr('y2',function(d){ return morbidityLinearScale(d.CASES_2010) })
+				.attr('class','slope_line')	
+				.style('stroke',slopeColors[i])	
+
 
 			// svg.append('svg:line')
 			// 	.datum(v)
